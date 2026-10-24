@@ -10,8 +10,12 @@ import AddCardPage from "./pages/AddCardPage";
 import EditCardPage from "./pages/EditCardPage";
 import ExitPage from "./pages/ExitPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import { useContext } from "react";
+import { AuthContext } from "./context/AuthContext";
 
-function AppRoutes({ isAuth, setIsAuth }) {
+function AppRoutes() {
+  const { isAuth } = useContext(AuthContext);
+
   return (
     <Routes>
       <Route
@@ -38,7 +42,7 @@ function AppRoutes({ isAuth, setIsAuth }) {
          <Route path="/add-card" element={<AddCardPage />} />
          <Route
             path="/exit"
-            element={<ExitPage setIsAuth={setIsAuth} />}
+            element={<ExitPage />}
          />
          </Route>
       </Route>

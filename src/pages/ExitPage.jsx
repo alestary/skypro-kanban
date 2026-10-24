@@ -1,18 +1,21 @@
 import { useNavigate } from "react-router-dom";
 import { exitStyles as styles } from "./ExitPage.styled";
 
-function ExitPage({ setIsAuth }) {
-  const navigate = useNavigate();
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 
-  function handleExit() {
-    ["token", "userName", "userLogin"].forEach((key) => localStorage.removeItem(key));
-    setIsAuth(false);
-    navigate("/login", { replace: true });
-  }
+function ExitPage() {
+    const { logout } = useContext(AuthContext);
+    const navigate = useNavigate();
 
-  function handleCancel() {
-    navigate("/", { replace: true });
-  }
+    function handleExit() {
+        logout();
+        navigate("/login", { replace: true });
+    }
+
+    function handleCancel() {
+        navigate("/", { replace: true });
+    }
 
   return (
     <div style={styles.overlay}>

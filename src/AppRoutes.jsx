@@ -24,7 +24,7 @@ function AppRoutes() {
           isAuth ? (
             <Navigate to="/" replace />
           ) : (
-            <SignInPage setIsAuth={setIsAuth} />
+            <SignInPage />
           )
         }
       />

@@ -1,36 +1,48 @@
+
 import styled, { keyframes } from "styled-components";
 import { theme } from "../theme";
 
 const cardAnimation = keyframes`
-  0% {
-    height: 0;
-    opacity: 0;
-  }
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
 
-  100% {
-    height: auto;
-    opacity: 1;
-  }
-`;
-
-export const CardItem = styled.div`
-    padding: 5px;
-    animation: ${cardAnimation} 500ms linear;
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 `;
 
 export const CardWrapper = styled.div`
     width: 220px;
+    min-width: 220px;
+    max-width: 100%;
     min-height: 130px;
+    height: auto;
     flex-shrink: 0;
+    align-self: flex-start;
+
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
     background: ${theme.colors.white};
     border-radius: 10px;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    justify-content: stretch;
+    align-items: stretch;
+    justify-content: flex-start;
     padding: 15px 13px 19px;
-    box-sizing: border-box;
+
+    animation: ${cardAnimation} 400ms ease-out both;
+    animation-delay: ${({ $animationIndex = 0 }) =>
+        `${Math.min($animationIndex * 60, 420)}ms`};
+
+    @media (prefers-reduced-motion: reduce) {
+        animation: none;
+    }
 `;
+
+
 
 export const CardGroup = styled.div`
     width: 100%;
@@ -75,12 +87,20 @@ export const CardTitle = styled.h3`
 
 export const CardContent = styled.div`
     width: 100%;
-    flex: 1;
+    min-width: 0;
+    flex: 1 1 auto;
     gap: 10px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     justify-content: space-between;
+
+    > a {
+        display: block;
+        width: 100%;
+        min-width: 0;
+        color: inherit;
+        text-decoration: none;
 `;
 
 export const CardTopic = styled.div`
@@ -118,23 +138,26 @@ export const CardTopic = styled.div`
     }
 `;
 
+
 export const CardDate = styled.div`
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: flex-start;
-
-    svg {
-        width: 13px;
-    }
+    width: 100%;
+    min-width: 0;
+    margin-top: auto;
 
     p {
-        margin-left: 6px;
+        min-width: 0;
+        margin: 0 0 0 6px;
         font-size: 10px;
         line-height: 13px;
         color: ${theme.colors.secondaryText};
         letter-spacing: 0.2px;
+        overflow-wrap: anywhere;
     }
 `;
+
 
 export const CardDateText = styled.p`
     margin-left: 6px;

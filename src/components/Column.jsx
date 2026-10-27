@@ -9,15 +9,15 @@ import {
 function Column({ title, cards }) {
   return (
     <ColumnWrapper>
-      <ColumnTitle>
-        <p>{title}</p>
-      </ColumnTitle>
-
       <CardsList>
-        {cards.map((card) => (
-          <Card key={card.id} card={card} />
+        {cards.map((card, index) => (
+          <Card
+            key={card.id}
+            card={card}
+            animationIndex={index}
+          />
         ))}
-      </CardsList>
+      </CardsList>  
     </ColumnWrapper>
   );
 }

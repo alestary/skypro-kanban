@@ -50,7 +50,6 @@ export default function CardPage() {
       titleId="card-title"
       onClose={close}
       busy={busy}
-      wide
     >
       {loading ? (
         <>

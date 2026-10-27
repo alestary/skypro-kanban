@@ -11,12 +11,12 @@ import {
   CardDate,
 } from "./Card.styled";
 
-export default function Card({ card }) {
+export default function Card({ card, animationIndex = 0 }) {
   const navigate = useNavigate();
   const routeId = encodeURIComponent(card.id);
 
   return (
-    <CardWrapper>
+    <CardWrapper $animationIndex={animationIndex}>
       <CardGroup>
         <CardTopic $topic={card.topic}>
           <p>{card.topic}</p>

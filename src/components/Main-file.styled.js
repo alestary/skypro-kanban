@@ -11,7 +11,7 @@ export const MainStatuses = styled.div`
     width: 100%;
     display: flex;
     align-items: flex-start;
-    gap: 0;
+    gap: 20px;
     font-family: Roboto, sans-serif;
     font-weight: 600;
     font-size: 14px;
@@ -21,6 +21,7 @@ export const MainStatuses = styled.div`
 
     @media screen and (max-width: 1200px) {
         flex-direction: column;
+        gap: 24px;
   }
 `;
 

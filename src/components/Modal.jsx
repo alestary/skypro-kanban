@@ -22,26 +22,24 @@ const Overlay = styled.div`
 
 const Panel = styled.section`
   width: 100%;
-  max-width: 630px;
+  max-width: ${({ $variant }) =>
+    $variant === "view" ? "760px" : "570px"};
   max-height: calc(100dvh - 32px);
   overflow-y: auto;
   box-sizing: border-box;
-  padding: 40px 30px 38px;
-  border: 0.7px solid #d4dbe5;
-  border-radius: 10px;
-  background: #ffffff;
-  color: #000000;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-  font-family: Roboto, Arial, Helvetica, sans-serif;
+  padding: ${({ $variant }) =>
+    $variant === "view" ? "24px" : "24px 20px 32px"};
+  border: 1px solid #d4dbe5;
+  border-radius: 8px;
+  background: #fff;
+  color: #111;
+  font-family: Roboto, Arial, sans-serif;
 
-  @media screen and (max-width: 660px) {
+  @media (max-width: 600px) {
     max-height: 100dvh;
     min-height: 100dvh;
     border-radius: 0;
-  }
-
-  @media screen and (max-width: 495px) {
-    padding: 20px 16px 32px;
+    padding: 24px 16px;
   }
 `;
 
@@ -53,6 +51,7 @@ export default function Modal({
   titleId,
   onClose,
   busy = false,
+  variant = "form",
 }) {
   const panel = useRef(null);
 
@@ -78,19 +77,21 @@ export default function Modal({
     if (event.key === "Escape" && !busy) {
       event.preventDefault();
       onClose();
+      return;
     }
 
     if (event.key !== "Tab") return;
 
     const items = [
-      ...panel.current.querySelectorAll(focusable),
+      ...(panel.current?.querySelectorAll(focusable) ?? []),
     ];
 
     const first = items[0];
     const last = items[items.length - 1];
 
-    if (!first) {
+    if (!first || !last) {
       event.preventDefault();
+      panel.current?.focus();
       return;
     }
 
@@ -119,6 +120,7 @@ export default function Modal({
       }}
     >
       <Panel
+        $variant={variant}
         ref={panel}
         role="dialog"
         aria-modal="true"

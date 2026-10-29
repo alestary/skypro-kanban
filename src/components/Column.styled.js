@@ -11,19 +11,20 @@ export const ColumnWrapper = styled.div`
   flex-direction: column;
 
   @media screen and (max-width: 1200px) {
-    width: 100%;
     flex: 0 0 100%;
+    width: 100%;
     padding: 0 0 20px;
   }
 `;
 
 export const ColumnTitle = styled.div`
   padding: 0 10px;
-  margin: 15px 0;
+  margin: 0 0 15px;
 
   p {
     margin: 0;
     color: ${theme.colors.secondaryText};
+    font-family: Roboto, sans-serif;
     font-size: 14px;
     font-weight: 600;
     line-height: 1.4;
@@ -38,11 +39,6 @@ export const CardsList = styled.div`
   align-items: stretch;
   gap: 12px;
   position: relative;
-
-  @media screen and (max-width: 1200px) {
-    flex-direction: row;
-    align-items: flex-start;
-    overflow-x: auto;
-    padding-bottom: 10px;
-  }
-`;
+  min-width: 0;
+  box-sizing: border-box;
+`; 

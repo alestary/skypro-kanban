@@ -25,7 +25,7 @@ export const addCardStyles = {
   },
 
   title: {
-    margin: "0 0 20px",
+    margin: 0,
     color: "#000000",
     fontFamily: '"Roboto", Arial, Helvetica, sans-serif',
     fontWeight: 600,
@@ -36,21 +36,55 @@ export const addCardStyles = {
 
   content: {
     display: "grid",
-    gridTemplateColumns: "minmax(0, 2fr) minmax(0, 1fr)",
-    columnGap: "19px",
-    rowGap: "18px",
+    gridTemplateColumns: "minmax(0, 2fr) minmax(170px, 1fr)",
+    gap: "14px",
+    alignItems: "start",
+    width: "100%",
+    boxSizing: "border-box",
   },
 
   leftColumn: {
-    minWidth: 0,
     display: "flex",
     flexDirection: "column",
+    gap: "14px",
+    minWidth: 0,
   },
 
   rightColumn: {
-    minWidth: 0,
     display: "flex",
     flexDirection: "column",
+    gap: "10px",
+    minWidth: 0,
+  },
+
+  fieldset: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
+    minWidth: 0,
+    padding: 0,
+    margin: 0,
+    border: "none",
+  },
+
+  categories: {
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "center",
+    gap: "6px",
+    marginTop: "4px",
+  },
+
+  buttons: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    flexWrap: "wrap",
+    gap: "8px",
+    width: "100%",
+    marginTop: "auto",
+    paddingTop: "14px",
+    boxSizing: "border-box",
   },
 
   label: {
@@ -131,14 +165,40 @@ export const addCardStyles = {
     gap: "7px"
   },
 
-  categoryButton: {
-    padding: "8px 20px 8px 20px",
-    border: "none",
-    borderRadius: "24px",
-    fontWeight: 600,
+  statusButton: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: "28px",
+    padding: "0 12px",
+    border: "1px solid #e3e8f0",
+    borderRadius: "18px",
+    backgroundColor: "#fff",
+    color: "#94a3b8",
+    fontSize: "10px",
+    lineHeight: "14px",
+    whiteSpace: "nowrap",
     cursor: "pointer",
-    fontFamily: '"Roboto", Arial, Helvetica, sans-serif',
-    fontSize: "14px",
+  },
+
+  activeStatusButton: {
+  backgroundColor: "#94a9c4",
+  color: "#fff",
+  borderColor: "#94a9c4",
+},
+
+  categoryButton: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: "28px",
+    padding: "0 14px",
+    border: "none",
+    borderRadius: "18px",
+    fontSize: "10px",
+    lineHeight: "14px",
+    whiteSpace: "nowrap",
+    cursor: "pointer",
   },
 
   categoryColors: {
@@ -191,5 +251,13 @@ export const addCardStyles = {
     fontSize: "14px",
     fontWeight: 500,
     cursor: "pointer",
+  },
+  header: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: "12px",
+    width: "100%",
+    marginBottom: "20px",
   },
 };

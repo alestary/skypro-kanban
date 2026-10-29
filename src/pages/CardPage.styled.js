@@ -34,6 +34,7 @@ export const styles = {
     justifyContent: "space-between",
     gap: "16px",
     marginBottom: "24px",
+    width: "100%",
   },
 
   title: {
@@ -92,6 +93,9 @@ export const styles = {
     gridTemplateColumns: "minmax(0, 1.7fr) minmax(150px, 0.8fr)",
     gap: "24px",
     alignItems: "start",
+    width: "100%",
+    marginTop: "8px",
+    boxSizing: "border-box",
   },
 
   description: {

@@ -138,18 +138,17 @@ export const CardTopic = styled.div`
     }
 `;
 
-
 export const CardDate = styled.div`
     display: flex;
-    align-items: flex-start;
-    justify-content: flex-start;
+    align-items: center;
+    gap: 6px;
     width: 100%;
     min-width: 0;
     margin-top: auto;
 
     p {
         min-width: 0;
-        margin: 0 0 0 6px;
+        margin: 0;
         font-size: 10px;
         line-height: 13px;
         color: ${theme.colors.secondaryText};
@@ -157,6 +156,7 @@ export const CardDate = styled.div`
         overflow-wrap: anywhere;
     }
 `;
+
 
 
 export const CardDateText = styled.p`
@@ -180,4 +180,11 @@ export const CardBtn = styled.div`
         border-radius: 50%;
         background-color: ${theme.colors.secondaryText};
     }
+`;
+
+export const CalendarIcon = styled.svg`
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+    color: ${theme.colors.secondaryText};
 `;

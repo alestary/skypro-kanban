@@ -1,5 +1,4 @@
 import Card from "./Card";
-
 import {
   ColumnWrapper,
   ColumnTitle,
@@ -9,6 +8,10 @@ import {
 function Column({ title, cards }) {
   return (
     <ColumnWrapper>
+      <ColumnTitle>
+        <p>{title}</p>
+      </ColumnTitle>
+
       <CardsList>
         {cards.map((card, index) => (
           <Card
@@ -17,7 +20,7 @@ function Column({ title, cards }) {
             animationIndex={index}
           />
         ))}
-      </CardsList>  
+      </CardsList>
     </ColumnWrapper>
   );
 }

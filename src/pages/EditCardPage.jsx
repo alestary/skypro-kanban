@@ -21,6 +21,7 @@ export default function EditCardPage() {
 
   return (
     <Modal
+      variant="form"
       titleId={task && !loading && !error
         ? "task-form-title"
         : "edit-state-title"}

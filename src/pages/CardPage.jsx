@@ -47,9 +47,10 @@ export default function CardPage() {
 
   return (
     <Modal
-      titleId="card-title"
+      titleId="task-view-title"
       onClose={close}
       busy={busy}
+      variant="view"
     >
       {loading ? (
         <>
@@ -58,7 +59,9 @@ export default function CardPage() {
           </h1>
 
           <TaskLoadState />
-
+          <button type="button" onClick={() => navigate(`/edit/${task.id}`)}>
+            Редактировать задачу
+          </button>
           <button
             type="button"
             style={styles.primaryButton}
@@ -146,7 +149,7 @@ export default function CardPage() {
             </span>
           </section>
 
-          <div className="task-view-content">
+          <div style={styles.content}>
             <section style={styles.section}>
               <h2 style={styles.sectionTitle}>
                 Описание задачи

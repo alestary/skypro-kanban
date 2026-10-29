@@ -1,13 +1,14 @@
-
 import { useState } from "react";
 import { addCardStyles as styles } from "../pages/AddCardPage.styled";
 import { dateInputValue, statuses, topics } from "../services/tasks.js";
+import Calendar from "./Calendar";
 
 export default function TaskForm({
   task,
   onSave,
   onDelete,
   onClose,
+  onCancel,
   onBusyChange,
 }) {
   const editing = Boolean(task);
@@ -84,30 +85,112 @@ export default function TaskForm({
     void perform("delete", () => onDelete());
   }
 
+  function handleDateSelect(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    change("date", `${year}-${month}-${day}`);
+  }
+
+  function cancel() {
+    if (busy) return;
+
+    if (onCancel) {
+      onCancel();
+    } else {
+      onClose();
+    }
+  }
+
+  function formatDeadline(dateString) {
+    if (!dateString) return "Не выбран";
+
+    const date = new Date(`${dateString}T12:00:00`);
+
+    if (Number.isNaN(date.getTime())) return "Не выбран";
+
+    return date.toLocaleDateString("ru-RU", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "2-digit",
+    });
+  }
+
   return (
     <form onSubmit={submit} noValidate>
-      <h1 id="task-form-title" style={styles.title}>
-        {editing ? "Редактирование задачи" : "Создание задачи"}
-      </h1>
+      {/* Заголовок и категория */}
+      <div style={styles.header}>
+        <h1 id="task-form-title" style={styles.title}>
+          {editing ? values.title : "Создание задачи"}
+        </h1>
 
-      <fieldset disabled={busy} className="task-fields">
-        <div className="task-form-content">
+        <div
+          style={{
+            ...styles.categoryButton,
+            ...styles.categoryColors[values.topic],
+            flexShrink: 0,
+          }}
+        >
+          {values.topic}
+        </div>
+      </div>
+
+      <fieldset disabled={busy} style={styles.fieldset}>
+        {/* Статусы */}
+        <section style={{ marginBottom: 16 }}>
+          <p style={styles.label}>Статус</p>
+
+          <div
+            role="group"
+            aria-label="Статус задачи"
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 6,
+              marginTop: 10,
+            }}
+          >
+            {statuses.map((status) => {
+              const selected = values.status === status;
+
+              return (
+                <button
+                  key={status}
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => change("status", status)}
+                  style={{
+                    ...(selected
+                      ? styles.activeStatusButton
+                      : styles.statusButton),
+                    borderRadius: 20,
+                    padding: "6px 14px",
+                    backgroundColor: selected ? "#94A9C7" : "#FFFFFF",
+                    color: selected ? "#FFFFFF" : "#94A9C7",
+                    border: "1px solid #DCE4EF",
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                    fontSize: 12,
+                    lineHeight: 1.2,
+                  }}
+                >
+                  {status}
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Описание и календарь */}
+        <div
+          style={{
+            ...styles.content,
+            gridTemplateColumns: "minmax(0, 1fr) 160px",
+            alignItems: "start",
+          }}
+        >
           <div style={styles.leftColumn}>
-            <label htmlFor="task-title" style={styles.label}>
-              Название задачи
-            </label>
-
-            <input
-              id="task-title"
-              value={values.title}
-              onChange={(event) =>
-                change("title", event.target.value)
-              }
-              placeholder="Введите название задачи..."
-              style={styles.input}
-              required
-            />
-
             <label htmlFor="task-description" style={styles.label}>
               Описание задачи
             </label>
@@ -119,81 +202,41 @@ export default function TaskForm({
                 change("description", event.target.value)
               }
               placeholder="Введите описание задачи..."
-              style={styles.textarea}
+              style={{
+                ...styles.textarea,
+                minHeight: 168,
+                resize: "vertical",
+              }}
             />
           </div>
 
           <div style={styles.rightColumn}>
-            <label htmlFor="task-date" style={styles.label}>
-              Срок выполнения
-            </label>
+            <p style={styles.label}>Даты</p>
 
-            <input
-              id="task-date"
-              type="date"
-              value={values.date}
-              onChange={(event) =>
-                change("date", event.target.value)
-              }
-              style={styles.dateInput}
-              required
-            />
-
-            <p style={styles.dateHint}>
-              Выберите срок исполнения.
-            </p>
-
-            <label
-              htmlFor="task-status"
-              style={{ ...styles.label, marginTop: 20 }}
-            >
-              Статус
-            </label>
-
-            <select
-              id="task-status"
-              value={values.status}
-              onChange={(event) =>
-                change("status", event.target.value)
-              }
-            >
-              {statuses.map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div style={styles.categorySection}>
-            <p style={styles.label}>Категория</p>
-
-            <div
-              style={styles.categoryList}
-              role="group"
-              aria-label="Категория"
-            >
-              {topics.map((topic) => (
-                <button
-                  key={topic}
-                  type="button"
-                  aria-pressed={values.topic === topic}
-                  onClick={() => change("topic", topic)}
-                  style={{
-                    ...styles.categoryButton,
-                    ...styles.categoryColors[topic],
-                    ...(values.topic === topic
-                      ? {
-                          outline: "2px solid",
-                          outlineOffset: "2px",
-                        }
-                      : {}),
-                  }}
-                >
-                  {topic}
-                </button>
-              ))}
+            <div style={{ marginTop: 10 }}>
+              <Calendar
+                selectedDate={
+                  values.date
+                    ? new Date(`${values.date}T12:00:00`)
+                    : null
+                }
+                onDateSelect={handleDateSelect}
+              />
             </div>
+
+            <p
+              style={{
+                ...styles.dateHint,
+                color: "#94A6BE",
+                fontSize: 10,
+                marginTop: 8,
+              }}
+            >
+              Срок исполнения:{" "}
+              <span style={{ color: "#333333" }}>
+                {formatDeadline(values.date)}.
+              </span>
+            </p>
           </div>
         </div>
       </fieldset>
@@ -204,48 +247,69 @@ export default function TaskForm({
         </p>
       )}
 
+      {/* Кнопки действий */}
       <div
         style={{
-          ...styles.actions,
-          gap: 10,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 12,
           flexWrap: "wrap",
+          marginTop: 14,
         }}
       >
-        {editing && onDelete && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            flexWrap: "wrap",
+          }}
+        >
+          <button
+            type="submit"
+            style={styles.submitButton}
+            disabled={busy}
+          >
+            {pending === "save" ? "Сохранение…" : "Сохранить"}
+          </button>
+
           <button
             type="button"
+            style={styles.cancelButton}
             disabled={busy}
-            onClick={remove}
-            style={{
-              ...styles.cancelButton,
-              color: "#c63737",
-            }}
+            onClick={cancel}
           >
-            {pending === "delete"
-              ? "Удаление…"
-              : "Удалить задачу"}
+            Отменить
           </button>
-        )}
+
+          {editing && onDelete && (
+            <button
+              type="button"
+              disabled={busy}
+              onClick={remove}
+              style={{
+                ...styles.cancelButton,
+                color: "#565EEF",
+                border: "1px solid #565EEF",
+                backgroundColor: "#FFFFFF",
+                borderRadius: 4,
+              }}
+            >
+              {pending === "delete"
+                ? "Удаление…"
+                : "Удалить задачу"}
+            </button>
+          )}
+        </div>
 
         <button
           type="button"
-          style={styles.cancelButton}
+          style={styles.submitButton}
           disabled={busy}
           onClick={onClose}
         >
-          Отмена
-        </button>
-
-        <button
-          type="submit"
-          style={styles.submitButton}
-          disabled={busy}
-        >
-          {pending === "save"
-            ? "Сохранение…"
-            : editing
-              ? "Сохранить изменения"
-              : "Создать задачу"}
+          Закрыть
         </button>
       </div>
     </form>

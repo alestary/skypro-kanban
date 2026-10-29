@@ -1,5 +1,4 @@
 import Card from "./Card";
-
 import {
   ColumnWrapper,
   ColumnTitle,
@@ -14,8 +13,12 @@ function Column({ title, cards }) {
       </ColumnTitle>
 
       <CardsList>
-        {cards.map((card) => (
-          <Card key={card.id} card={card} />
+        {cards.map((card, index) => (
+          <Card
+            key={card.id}
+            card={card}
+            animationIndex={index}
+          />
         ))}
       </CardsList>
     </ColumnWrapper>

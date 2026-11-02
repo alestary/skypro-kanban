@@ -3,48 +3,41 @@ import { addCardStyles as styles } from "../pages/AddCardPage.styled";
 import { dateInputValue, statuses, topics } from "../services/tasks.js";
 import Calendar from "./Calendar";
 
-export default function TaskForm({
-  task,
-  onSave,
-  onDelete,
-  onClose,
-  onCancel,
-  onBusyChange,
-}) {
+export default function TaskForm({ task, onSave, onDelete, onClose, onBusyChange }) {
   const editing = Boolean(task);
-
   const [values, setValues] = useState(() => ({
     title: task?.title || "",
     description: task?.description || "",
-    topic: task?.topic || topics[0],
-    status: task?.status || statuses[0],
+    topic: topics.includes(task?.topic) ? task.topic : "",
+    status: statuses.includes(task?.status) ? task.status : statuses[0],
     date: dateInputValue(task?.date),
   }));
-
   const [error, setError] = useState("");
   const [pending, setPending] = useState("");
   const busy = Boolean(pending);
 
   function change(field, value) {
-    setValues((old) => ({
-      ...old,
-      [field]: value,
-    }));
+    setValues((current) => ({ ...current, [field]: value }));
     setError("");
+  }
+
+  function parseCalendarDate(value) {
+    if (!value) return null;
+    const [year, month, day] = value.split("-").map(Number);
+    const date = new Date(year, month - 1, day);
+    return Number.isNaN(date.getTime()) ? null : date;
   }
 
   async function perform(action, operation) {
     if (busy) return;
-
     setError("");
     setPending(action);
     onBusyChange?.(true);
-
     try {
       await operation();
       onClose();
-    } catch (error) {
-      setError(error.message || "Не удалось выполнить действие");
+    } catch (requestError) {
+      setError(requestError.message || "Не удалось выполнить действие");
     } finally {
       setPending("");
       onBusyChange?.(false);
@@ -53,264 +46,94 @@ export default function TaskForm({
 
   function submit(event) {
     event.preventDefault();
-
-    if (!values.title.trim()) {
-      setError("Введите название задачи");
-      return;
-    }
-
-    if (!values.date) {
-      setError("Выберите срок выполнения задачи");
-      return;
-    }
-
-    const taskValues = {
-      ...values,
-      title: values.title.trim(),
-      description: values.description.trim(),
-    };
-
-    void perform("save", () => onSave(taskValues));
+    if (!values.title.trim()) return setError("Введите название задачи");
+    if (!values.topic) return setError("Выберите категорию задачи");
+    if (!values.date) return setError("Укажите корректный срок выполнения");
+    void perform("save", () => onSave({
+      ...values, title: values.title.trim(), description: values.description.trim(),
+    }));
   }
 
   function remove() {
     if (busy || !onDelete || !task) return;
-
-    const confirmed = window.confirm(
-      `Удалить задачу «${task.title}»?`
-    );
-
-    if (!confirmed) return;
-
-    void perform("delete", () => onDelete());
-  }
-
-  function handleDateSelect(date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-
-    change("date", `${year}-${month}-${day}`);
-  }
-
-  function cancel() {
-    if (busy) return;
-
-    if (onCancel) {
-      onCancel();
-    } else {
-      onClose();
+    if (window.confirm(`Удалить задачу «${task.title}»?`)) {
+      void perform("delete", onDelete);
     }
-  }
-
-  function formatDeadline(dateString) {
-    if (!dateString) return "Не выбран";
-
-    const date = new Date(`${dateString}T12:00:00`);
-
-    if (Number.isNaN(date.getTime())) return "Не выбран";
-
-    return date.toLocaleDateString("ru-RU", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "2-digit",
-    });
   }
 
   return (
     <form onSubmit={submit} noValidate>
-      {/* Заголовок и категория */}
       <div style={styles.header}>
-        <h1 id="task-form-title" style={styles.title}>
-          {editing ? values.title : "Создание задачи"}
-        </h1>
-
-        <div
-          style={{
-            ...styles.categoryButton,
-            ...styles.categoryColors[values.topic],
-            flexShrink: 0,
-          }}
-        >
-          {values.topic}
-        </div>
+        <h1 id="task-form-title" style={styles.title}>{editing ? "Редактирование задачи" : "Создание задачи"}</h1>
+        {values.topic && <span style={{ ...styles.categoryButton, ...styles.categoryColors[values.topic] }}>{values.topic}</span>}
       </div>
 
       <fieldset disabled={busy} style={styles.fieldset}>
-        {/* Статусы */}
+        <label htmlFor="task-title" style={styles.label}>Название задачи</label>
+        <input id="task-title" value={values.title} onChange={(e) => change("title", e.target.value)}
+          placeholder="Введите название задачи" style={styles.input} />
+
         <section style={{ marginBottom: 16 }}>
           <p style={styles.label}>Статус</p>
-
-          <div
-            role="group"
-            aria-label="Статус задачи"
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: 6,
-              marginTop: 10,
-            }}
-          >
-            {statuses.map((status) => {
-              const selected = values.status === status;
-
-              return (
-                <button
-                  key={status}
-                  type="button"
-                  aria-pressed={selected}
-                  onClick={() => change("status", status)}
-                  style={{
-                    ...(selected
-                      ? styles.activeStatusButton
-                      : styles.statusButton),
-                    borderRadius: 20,
-                    padding: "6px 14px",
-                    backgroundColor: selected ? "#94A9C7" : "#FFFFFF",
-                    color: selected ? "#FFFFFF" : "#94A9C7",
-                    border: "1px solid #DCE4EF",
-                    cursor: "pointer",
-                    whiteSpace: "nowrap",
-                    fontSize: 12,
-                    lineHeight: 1.2,
-                  }}
-                >
-                  {status}
-                </button>
-              );
-            })}
+          <div role="group" aria-label="Статус задачи" style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {statuses.map((status) => (
+              <button key={status} type="button" aria-pressed={values.status === status}
+                onClick={() => change("status", status)}
+                style={{ ...(values.status === status ? styles.activeStatusButton : styles.statusButton),
+                  borderRadius: 20, padding: "6px 14px", backgroundColor: values.status === status ? "#94A9C7" : "#fff",
+                  color: values.status === status ? "#fff" : "#94A9C7", border: "1px solid #DCE4EF", cursor: "pointer" }}>
+                {status}
+              </button>
+            ))}
           </div>
         </section>
 
-        {/* Описание и календарь */}
-        <div
-          style={{
-            ...styles.content,
-            gridTemplateColumns: "minmax(0, 1fr) 160px",
-            alignItems: "start",
-          }}
-        >
-          <div style={styles.leftColumn}>
-            <label htmlFor="task-description" style={styles.label}>
-              Описание задачи
-            </label>
-
-            <textarea
-              id="task-description"
-              value={values.description}
-              onChange={(event) =>
-                change("description", event.target.value)
-              }
-              placeholder="Введите описание задачи..."
-              style={{
-                ...styles.textarea,
-                minHeight: 168,
-                resize: "vertical",
-              }}
-            />
+        <section style={styles.categorySection}>
+          <p style={styles.label}>Категория задачи</p>
+          <div style={styles.categoryList}>
+            {topics.map((topic) => (
+              <button key={topic} type="button" aria-pressed={values.topic === topic}
+                onClick={() => change("topic", topic)}
+                style={{ ...styles.categoryButton, ...styles.categoryColors[topic],
+                  outline: values.topic === topic ? "2px solid #565EEF" : "none" }}>
+                {topic}
+              </button>
+            ))}
           </div>
+        </section>
 
+        <div style={{ ...styles.content, gridTemplateColumns: "minmax(0, 1fr) 160px", marginTop: 16 }}>
+          <div style={styles.leftColumn}>
+            <label htmlFor="task-description" style={styles.label}>Описание задачи</label>
+            <textarea id="task-description" value={values.description}
+              onChange={(e) => change("description", e.target.value)}
+              placeholder="Введите описание задачи..." style={{ ...styles.textarea, minHeight: 168 }} />
+          </div>
           <div style={styles.rightColumn}>
-            <p style={styles.label}>Даты</p>
-
-            <div style={{ marginTop: 10 }}>
-              <Calendar
-                selectedDate={
-                  values.date
-                    ? new Date(`${values.date}T12:00:00`)
-                    : null
-                }
-                onDateSelect={handleDateSelect}
-              />
-            </div>
-
-            <p
-              style={{
-                ...styles.dateHint,
-                color: "#94A6BE",
-                fontSize: 10,
-                marginTop: 8,
-              }}
-            >
-              Срок исполнения:{" "}
-              <span style={{ color: "#333333" }}>
-                {formatDeadline(values.date)}.
-              </span>
+            <p style={styles.label}>Срок выполнения</p>
+            <Calendar
+              selectedDate={parseCalendarDate(values.date)}
+              onDateSelect={(date) => change("date", `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`)}
+            />
+            <p style={styles.dateHint}>
+              {values.date ? `Срок исполнения: ${values.date.split("-").reverse().join(".")}` : "Выберите дату"}
             </p>
           </div>
         </div>
       </fieldset>
 
-      {error && (
-        <p role="alert" style={styles.error}>
-          {error}
-        </p>
-      )}
-
-      {/* Кнопки действий */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 12,
-          flexWrap: "wrap",
-          marginTop: 14,
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            flexWrap: "wrap",
-          }}
-        >
-          <button
-            type="submit"
-            style={styles.submitButton}
-            disabled={busy}
-          >
-            {pending === "save" ? "Сохранение…" : "Сохранить"}
+      {error && <p role="alert" style={styles.error}>{error}</p>}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap", marginTop: 14 }}>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <button type="submit" disabled={busy} style={styles.submitButton}>
+            {pending === "save" ? "Сохранение…" : editing ? "Сохранить изменения" : "Создать задачу"}
           </button>
-
-          <button
-            type="button"
-            style={styles.cancelButton}
-            disabled={busy}
-            onClick={cancel}
-          >
-            Отменить
-          </button>
-
-          {editing && onDelete && (
-            <button
-              type="button"
-              disabled={busy}
-              onClick={remove}
-              style={{
-                ...styles.cancelButton,
-                color: "#565EEF",
-                border: "1px solid #565EEF",
-                backgroundColor: "#FFFFFF",
-                borderRadius: 4,
-              }}
-            >
-              {pending === "delete"
-                ? "Удаление…"
-                : "Удалить задачу"}
-            </button>
-          )}
+          <button type="button" disabled={busy} onClick={onClose} style={styles.cancelButton}>Отмена</button>
+          {editing && onDelete && <button type="button" disabled={busy} onClick={remove} style={styles.cancelButton}>
+            {pending === "delete" ? "Удаление…" : "Удалить задачу"}
+          </button>}
         </div>
-
-        <button
-          type="button"
-          style={styles.submitButton}
-          disabled={busy}
-          onClick={onClose}
-        >
-          Закрыть
-        </button>
+        <button type="button" disabled={busy} onClick={onClose} style={styles.submitButton}>Закрыть</button>
       </div>
     </form>
   );

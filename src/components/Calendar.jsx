@@ -63,7 +63,7 @@ function getCalendarDays(year, month) {
   return days;
 }
 
-function Calendar({ selectedDate, onDateSelect }) {
+function Calendar({ selectedDate, onDateSelect, readOnly = false }) {
   const today = new Date();
 
   const [visibleMonth, setVisibleMonth] = useState(
@@ -82,18 +82,19 @@ function Calendar({ selectedDate, onDateSelect }) {
       selectedDate instanceof Date &&
       !Number.isNaN(selectedDate.getTime());
 
-    setInternalSelectedDate(validDate ? selectedDate : null);
+    const nextTimestamp = validDate ? selectedDate.getTime() : null;
+    const currentTimestamp = internalSelectedDate?.getTime() ?? null;
 
-    if (validDate) {
-      setVisibleMonth(
-        new Date(
-          selectedDate.getFullYear(),
-          selectedDate.getMonth(),
-          1
-        )
-      );
+    if (nextTimestamp !== currentTimestamp) {
+      setInternalSelectedDate(validDate ? selectedDate : null);
     }
-  }, [selectedDate]);
+
+    if (validDate &&
+        (visibleMonth.getFullYear() !== selectedDate.getFullYear() ||
+         visibleMonth.getMonth() !== selectedDate.getMonth())) {
+      setVisibleMonth(new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1));
+    }
+  }, [selectedDate, internalSelectedDate, visibleMonth]);
 
   const year = visibleMonth.getFullYear();
   const month = visibleMonth.getMonth();
@@ -125,6 +126,7 @@ function Calendar({ selectedDate, onDateSelect }) {
               <CalendarNavButton
                 type="button"
                 aria-label="Предыдущий месяц"
+                disabled={readOnly}
                 onClick={() => changeMonth(-1)}
               >
                 <svg viewBox="0 0 10 10" aria-hidden="true">
@@ -135,6 +137,7 @@ function Calendar({ selectedDate, onDateSelect }) {
               <CalendarNavButton
                 type="button"
                 aria-label="Следующий месяц"
+                disabled={readOnly}
                 onClick={() => changeMonth(1)}
               >
                 <svg viewBox="0 0 10 10" aria-hidden="true">
@@ -167,7 +170,7 @@ function Calendar({ selectedDate, onDateSelect }) {
                   type="button"
                   $active={Boolean(isActive)}
                   $otherMonth={item.otherMonth}
-                  disabled={item.otherMonth}
+                  disabled={readOnly || item.otherMonth}
                   onClick={() => selectDay(item.day)}
                   aria-label={
                     item.day

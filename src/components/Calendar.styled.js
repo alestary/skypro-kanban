@@ -114,8 +114,13 @@ export const CalendarNavButton = styled.button`
   color: ${theme.colors.secondaryText};
   cursor: pointer;
 
-  &:hover {
+  &:hover:not(:disabled) {
     color: ${theme.colors.primary};
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.45;
   }
 
   svg {

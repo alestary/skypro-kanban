@@ -17,7 +17,7 @@ export default function Main() {
     <MainWrapper>
       <MainBlock>
         {loading ? (
-          <TaskLoadState />
+          <TaskLoadState board />
         ) : error ? (
           <div className="task-state">
             <p>{error}</p>
@@ -28,9 +28,9 @@ export default function Main() {
         ) : (
           <>
             {tasks.length === 0 && (
-              <p className="task-state">
-                Задач пока нет. Создайте новую задачу.
-              </p>
+              <p className="task-state" role="status">
+                  Новых задач нет
+              </p>      
             )}
 
             <MainContent>
